@@ -25,27 +25,29 @@ import com.basedest.guess_the_star.data.CelebrityApi
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BuildConfig.API_BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        val api = retrofit.create(CelebrityApi::class.java)
+
         setContent {
             MaterialTheme {
-                CelebrityGuessingGame()
+                CelebrityGuessingGame(api)
             }
         }
     }
 }
 
 @Composable
-fun CelebrityGuessingGame() {
+fun CelebrityGuessingGame(api: CelebrityApi) {
     var celebrities by remember { mutableStateOf<List<Celebrity>>(emptyList()) }
     var currentCelebrity by remember { mutableStateOf<Celebrity?>(null) }
     var guess by remember { mutableStateOf(TextFieldValue("")) }
     var result by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://c85a-185-205-79-63.ngrok-free.app/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        val api = retrofit.create(CelebrityApi::class.java)
         celebrities = api.getCelebrities()
         currentCelebrity = celebrities.random()
     }
